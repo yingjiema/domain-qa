@@ -31,3 +31,5 @@ class QAPipeline(object):
             params={"Retriever": {"top_k": 10}, "Reader": {"top_k": 5}}
         )
         return prediction
+
+

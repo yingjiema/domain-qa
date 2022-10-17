@@ -15,15 +15,21 @@
 
 ## Components & Actions
 1. [DocumentStore](https://docs.haystack.deepset.ai/docs/document_store): ElasticSearch sever invoked by retriever
-   - [Install](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html) Elasticsearch and then [start](https://www.elastic.co/guide/en/elasticsearch/reference/current/starting-elasticsearch.html) an instance.
-   - Pull Docker image and running it
+   - [Setup Elasticsearch Cluster on AWS EC2](https://rharshad.com/setup-elasticsearch-cluster-aws-ec2/)
+   - [Install](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html) Elasticsearch and then [start](https://www.elastic.co/guide/en/elasticsearch/reference/current/starting-elasticsearch.html) an instance. Pull Docker image and running it: [Start a single-node cluster with Docker](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-dev-mode)
+     - `docker pull docker.elastic.co/elasticsearch/elasticsearch:7.9.3`
+     - `docker run -d -p 9200:9200 -e "discovery.type=single-node" elasticsearch:7.9.3`
+     - `docker pull docker.elastic.co/kibana/kibana:7.9.3`
+     - `docker run --link YOUR_ELASTICSEARCH_CONTAINER_NAME_OR_ID:elasticsearch -p 5601:5601 docker.elastic.co/kibana/kibana:7.9.3`
    - Initialize the Haystack ElasticsearchDocumentStore() object that will connect to initialized ES instance.
    - Build an API service to index formatted documents with haystack
        - [Input Format](https://docs.haystack.deepset.ai/docs/document_store#input-format)
    - Test indexing API service with domain-specific data
        - Biomedical docs
        - Clinical docs
-
+   - Snapshot and Restore ElasticSearch indeices and clusters into [S3 repository](https://www.elastic.co/guide/en/elasticsearch/reference/8.4/repository-s3.html)
+     - [Tutorial](https://www.youtube.com/watch?v=1ZENLfY6Kkk)
+     - [Kibana UI with Docker](https://www.elastic.co/guide/en/kibana/7.9/docker.html#_remove_docker_containers)
 2. **[GenerativeQAPipeline](https://docs.haystack.deepset.ai/docs/ready_made_pipelines#generativeqapipeline)**
     - **[Retriever](https://docs.haystack.deepset.ai/docs/retriever)**: Given query (domain-specific question), retrieve most relevant candidates Documents
         - Initialize a Retriever by passing a DocumentStore as its argument
@@ -31,14 +37,14 @@
         - Initialize a locally hosted AnswerGenerator
     - Build an API service which implement GenerativeQAPipeline with haystack
     - Test answer generator API with domain-specific question
-3. **[PseudoLabelGenerator](https://docs.haystack.deepset.ai/docs/pseudo_label_generator)** [Optional]**:** unsupervised domain adaptation method for **training dense retrievers** (not for reader)
+3. **ExtractiveQAPipeline**: Works better than GenerativeQAPipeline!
+4. **[PseudoLabelGenerator](https://docs.haystack.deepset.ai/docs/pseudo_label_generator)** [Optional]**:** unsupervised domain adaptation method for **training dense retrievers** (not for reader)
     - Build an API service with PseudoLabelGeneraor to create training data
     - Test data generator API service with any domain-specific data
-4. **[Annotation Tool](https://docs.haystack.deepset.ai/docs/annotation)** [Optional]: Human labeling to generate labels for question answering
-5. **QA Frontend**: Chatbot?
+5. **[Annotation Tool](https://docs.haystack.deepset.ai/docs/annotation)** [Optional]: Human labeling to generate labels for question answering
+6. **QA Frontend**: Chatbot?
 
 ## Services [TBD]
-
 TBD: To Be Deployed
 
 1. ElasticSearch
