@@ -1,4 +1,3 @@
-from starlette.responses import StreamingResponse
 from fastapi import FastAPI, File, UploadFile
 from pipeline import QAPipeline
 import numpy as np

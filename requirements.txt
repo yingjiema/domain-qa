@@ -3,4 +3,3 @@ pydantic
 uvicorn
 python-multipart
 requests
-farm-haystack
