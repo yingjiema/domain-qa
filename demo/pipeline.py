@@ -10,16 +10,15 @@ from haystack.pipelines import ExtractiveQAPipeline
 # text4 = "Season it well, and season it early if you've got time. Prime rib has plenty of flavor on its own, so there's no real need to add much more than a good heavy sprinkling of salt and pepper. If you're able to plan ahead, it's best to season your prime rib with salt at least the day before, and up to four days ahead of roasting, letting it sit on a rack in your fridge uncovered. This will allow time for the salt to penetrate and season more deeply while also drying out the surface, which will lead to better browning during roasting."
 # DOCS = [{"content": text1}, {"content": text2}, {"content": text3}, {"content": text4 }]
 MODEL = "deepset/minilm-uncased-squad2"
-HOST = "52.23.254.25"
 
 class QAPipeline(object):
     def __init__(self):
         self.model = MODEL
-        self.host = HOST
 
     def create_pipeline(self):
         document_store = ElasticsearchDocumentStore(
-            host=self.host,
+            host='es01',
+            port='9200',
             username='',
             password='',
             index='bioasq',
