@@ -1,14 +1,14 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 
 # from datasets import load_dataset
-# from generative_pseudo_label_generator import GenerativePseudoLabelGenerator
+from generative_pseudo_label_generator import GenerativePseudoLabelGenerator
 # from sentence_transformers import SentenceTransformer, util
 
-# corpus = ['Flu and COVID are both respiratory illnesses that arise from the spread of different viruses. The flu usually peaks between December and February, according to the U.S. Centers for Disease Control and Prevention (CDC), and the severity of the flu depends on the season and how the flu vaccine correlates to what circulates, says Dr. Preeti Malani, an infectious disease physician at the University of Michigan.',
-#          'COVID-19 isn’t tied to a particular season although experts speculate that there will be another COVID wave between October and January.',
-#          'Although having either the flu or COVID can present as asymptomatic, those with the flu typically feel symptoms right away, between one and four days after infection, while those with COVID can feel them from two to five days after or anywhere up to 14 days, per the CDC.',
-#          'According to the CDC, the symptoms of any viral infection are similar, although it is more common to have a loss of smell and taste if you’re expiring a COVID-19 reaction versus the flu or a cold. Here are the symptoms, with information from the AAFA and the CDC.'
-#          ]
+def file_to_list(contents):
+    contents = contents.decode('utf-8').split('\n')
+    contents = [ c for c in contents if c != '' ]
+    return contents
+
 
 app = FastAPI()
 
@@ -19,6 +19,15 @@ app = FastAPI()
 #     gpl.create_embedding_retriever()
 #     gpl.train()
 #     gpl.save(retriever_dir)
+
+@app.post('/train-retriever', tags=['Generative Pseudo Labelling'])
+async def train_retriever(file: UploadFile = File(...)):
+    contents = file['text']
+
+    sql_url = 'sqlite:///' + file['name'] + '_document_store.db'
+    gpl = GenerativePseudoLabelGenerator(sql_url=sql_url)
+    gpl.add_documents(contents)
+    return {'messages': contents }
 
 @app.get('/', tags=['Health Check'])
 async def root():
