@@ -26,12 +26,15 @@ app = FastAPI()
 async def train_retriever(file_name_dict: dict):
 
     file_name = file_name_dict['file_name']
+    proj_name = file_name_dict['proj_name']
+    key = f'projects/{proj_name}/{file_name}'
 
-    sql_url = 'sqlite:///temp_docker_document_store.db'
+    sql_url = file_name_dict['sql_url']
+    
     # sql_url = 'postgresql://jason:jason@localhost:5433'
     gpl = GenerativePseudoLabelGenerator(sql_url=sql_url)
 
-    s3.download_file(BUCKET_NAME, Key='projects/testing123/' + file_name,Filename=file_name)
+    s3.download_file(BUCKET_NAME, Key=key,Filename=file_name)
     with open(file_name) as f:
         contents = f.readlines()
 
@@ -40,6 +43,19 @@ async def train_retriever(file_name_dict: dict):
     gpl.create_embedding_retriever()
     gpl.train()
     return {'messages': contents}
+
+@app.post('/store-retriever', tags=['Move Trained Retriever to S3'])
+async def store_retriever(file_name_dict: dict):
+
+    file_name = file_name_dict['file_name']
+    proj_name = file_name_dict['proj_name']
+    full_file_name = f'projects/{proj_name}/{file_name}'
+
+    with open(file_name, 'r+b') as f:
+        response = s3.upload_fileobj(f, BUCKET_NAME, full_file_name)
+    
+
+    return {'messages': response}
 
 @app.get('/', tags=['Health Check'])
 async def root():
