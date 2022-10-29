@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+
+  gpl:
+    build: ./generative-pseudo-labeling
+    ports:
+      - 8003:8000
+
+
+  ui:
+    build: ./ui
+    ports:
+      - 8501:8501

@@ -27,7 +27,7 @@ async def train_retriever(file_name_dict: dict):
 
     file_name = file_name_dict['file_name']
 
-    sql_url = 'sqlite:///temp_document_store.db'
+    sql_url = 'sqlite:///temp_docker_document_store.db'
     # sql_url = 'postgresql://jason:jason@localhost:5433'
     gpl = GenerativePseudoLabelGenerator(sql_url=sql_url)
 
