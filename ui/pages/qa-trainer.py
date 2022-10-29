@@ -35,15 +35,20 @@ st.markdown('### Step 3: Start training your bot!')
 
 if st.button('Submit'):
     if uploaded_file is not None:
-        if p is None:
-            p = 'untitled'
+        if pname is None:
+            pname = 'untitled'
         e = None
         s3 = boto3.client('s3')
         try:
             with st.spinner('Sending files to the cloud...'):
-                response = s3.upload_fileobj(uploaded_file, BUCKET_NAME, '/projects/' + pname.lower() + '/' + uploaded_file.name)
+                response = s3.upload_fileobj(uploaded_file, BUCKET_NAME, 'projects/' + pname.lower() + '/' + uploaded_file.name)
+                st.write(BUCKET_NAME, '/projects/' + pname.lower() + '/' + uploaded_file.name)
         except ClientError as e:
             st.exception(e)
 
         if e is None:
             st.markdown('Your data has been successfully uploaded!')
+
+        with st.spinner('Training the retriever...'):
+            response = requests.post('http://127.0.0.1:8001/train-retriever', json= {'file_name': uploaded_file.name })
+            st.write(response)
