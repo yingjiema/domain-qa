@@ -11,7 +11,7 @@ BUCKET_NAME = 'jason-jones-learned-his-lesson'
 
 # pip install awswrangler
 SERVICE_IP = os.getenv('SERVICE_IP')
-service_endpoint = 'http://{}:8003/train-retriever'.format(SERVICE_IP)
+service_endpoint = 'http://gpl:8000/train-retriever'
 
 def file_to_list(contents):
     contents = contents.decode('utf-8').split('\n\n')
@@ -50,5 +50,5 @@ if st.button('Submit'):
             st.markdown('Your data has been successfully uploaded!')
 
         with st.spinner('Training the retriever...'):
-            response = requests.post('http://127.0.0.1:8003/train-retriever', json= {'file_name': uploaded_file.name })
+            response = requests.post(service_endpoint, json= {'file_name': uploaded_file.name })
             st.write(response)
