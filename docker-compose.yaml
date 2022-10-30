@@ -15,6 +15,20 @@ services:
     depends_on: 
       - es01
 
+  ui:
+    build: ./ui
+    env_file:
+      - .env
+    ports:
+      - 8501:8501
+
+  gpl:
+    build: ./generative-pseudo-labeling
+    env_file:
+      - .env
+    ports:
+      - 8003:8000
+
   es01: 
     image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
     container_name: es01
