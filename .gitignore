@@ -5,6 +5,8 @@ __pycache__/
 
 # Other extensions
 *.db
+*.env
+*.bash_profile
 
 # C extensions
 *.so
@@ -131,3 +133,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 /data
+/mlruns
+
