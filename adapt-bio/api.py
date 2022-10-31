@@ -28,7 +28,7 @@ async def adaption(index: str = ''):
     adapt = DomainAdaptionPipeline()
     adapt.init_docstore_retriever(index, host=host)
     adapt.generate_labels()
-    adapt.train()
+    adapt.train(index)
     return
 
 

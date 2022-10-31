@@ -51,6 +51,7 @@ class DomainAdaptionPipeline(object):
         from haystack.nodes.question_generator import QuestionGenerator
         from haystack.nodes.label_generator import PseudoLabelGenerator
 
+
         question_producer = QuestionGenerator(
             model_name_or_path=model_name_or_path,
             max_length=max_length,
@@ -58,9 +59,13 @@ class DomainAdaptionPipeline(object):
             batch_size=batch_size,
             num_queries_per_doc=num_queries_per_doc)
         self.question_producer_params = question_producer.__dict__.get('_component_config', {}).get('params', {})
+        # experiment_name = "domain-adaption-question-generator"  
+        # mlflow.set_experiment(experiment_name)
+        # with mlflow.start_run() as run:
+        #     mlflow.log_params(self.question_producer_params)
 
         psg = PseudoLabelGenerator(
-            question_producer=self.question_producer,
+            question_producer=question_producer,
             retriever=self.retriever,
             max_questions_per_document=max_questions_per_document,
             batch_size=batch_size,
@@ -68,11 +73,11 @@ class DomainAdaptionPipeline(object):
             progress_bar=progress_bar)
         self.psg_params = psg.__dict__.get('_component_config', {}).get('params', {})
 
-        output, pipe_id = self.psg.run(
+        output, pipe_id = psg.run(
             documents=self.document_store.get_all_documents()) 
         self.gpl_labels = output['gpl_labels']
 
-    def train(self):
+    def train(self, index):
         experiment_name = "domain-adaption"  
         # s3_bucket = "s3://domain-qa-system/mlruns" 
         # mlflow.create_experiment(experiment_name, s3_bucket)
@@ -80,11 +85,15 @@ class DomainAdaptionPipeline(object):
         with mlflow.start_run() as run:
             self.retriever.train(self.gpl_labels, n_epochs=2, batch_size=32)
             self.retriever.save(f'saved_models/{index}')
-            params = {
-                'document_score': self.document_store.__dict__.get('_component_config', {}).get('params', {}),
-                'retriever': self.retriever.__dict__.get('_component_config', {}).get('params', {}),
-                'question_generator': self.question_producer_params 
-                'pseudo_label_generator': self.psg_params
-            }
-            mlflow.log_params(params)
+            try:
+                params = {
+                    'document_score': self.document_store.__dict__.get('_component_config', {}).get('params', {}),
+                    'retriever': self.retriever.__dict__.get('_component_config', {}).get('params', {}),
+                    'question_generator': self.question_producer_params,
+                    'pseudo_label_generator': self.psg_params
+                }
+                mlflow.log_params(params)
+            except:
+                pass
             mlflow.log_artifacts('saved_models')
+            self.document_store.update_embeddings(self.retriever)
