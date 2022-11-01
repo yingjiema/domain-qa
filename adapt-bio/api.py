@@ -29,7 +29,17 @@ async def adaption(index: str = ''):
     adapt.init_docstore_retriever(index, host=host)
     adapt.generate_labels()
     adapt.train(index)
-    return
+    return {"message": "Domain Adaption Success"}
+
+@app.post("/embed/", tags=["Update embedding for a given index"])
+async def adaption(index: str = '', embedding_model: str = "sentence-transformers/msmarco-distilbert-base-tas-b"):
+    try:
+        host = os.environ.get('ELASTICSEARCH_HOST')
+    except:
+        print("ELASTICSEARCH_HOST host does not set as env parameter.")
+    adapt = DomainAdaptionPipeline()
+    adapt.init_docstore_retriever(index, host=host)
+    return {"message": "Update Embedding Success"}
 
 
 @app.get("/", tags=["Health Check"])
