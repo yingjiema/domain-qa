@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile
 import boto3
+import json
 
 # from datasets import load_dataset
 from generative_pseudo_label_generator import GenerativePseudoLabelGenerator
@@ -29,16 +30,22 @@ async def train_retriever(file_name_dict: dict):
     proj_name = file_name_dict['proj_name']
     key = f'projects/{proj_name}/{file_name}'
 
-    sql_url = file_name_dict['sql_url']
+    # sql_url = file_name_dict['sql_url']
     
     # sql_url = 'postgresql://jason:jason@localhost:5433'
-    gpl = GenerativePseudoLabelGenerator(sql_url=sql_url)
+    gpl = GenerativePseudoLabelGenerator(index=proj_name)
 
     s3.download_file(BUCKET_NAME, Key=key,Filename=file_name)
-    with open(file_name) as f:
-        contents = f.readlines()
 
-    contents = [ c for c in contents if c != '\n' ]
+    fh = open(file_name)
+    if file_name.endswith('.json'):
+        contents = json.load(fh)
+    else:
+        contents = f.readlines()
+        contents = [ c for c in contents if c != '\n' ]
+    
+    fh.close()
+
     gpl.add_documents(contents)
     gpl.create_embedding_retriever()
     gpl.train()
