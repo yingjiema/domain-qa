@@ -60,6 +60,7 @@ if st.button('Submit'):
 
             st.write(response)
 
+st.markdown('### Step 4: Store the trained model')
 if st.button('Store file'):
     with st.spinner('Uploading trained files...'):
         save_details = {'file_name': SQLITE_FILE, 'proj_name': proj_name.lower() }
