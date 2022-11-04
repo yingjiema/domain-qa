@@ -7,10 +7,14 @@ import io
 #https://fastapi.tiangolo.com/
 app = FastAPI(title='FastAPI')
 
-@app.post("/question-answer/{query}", tags=["Biomedical QA"])
-async def question(query: str = ''):
+@app.post("/question-answer/", tags=["Domain-specific QA"])
+async def question(
+    query: str = '', 
+    index: str = '', 
+    embedding_model: str = "dmis-lab/biobert-base-cased-v1.2", 
+    reader_model: str = "deepset/minilm-uncased-squad2"):
     pipeline = QAPipeline()
-    pipeline.create_pipeline()
+    pipeline.create_pipeline(index, embedding_model, reader_model)
     return {"answers": pipeline.predict(query)}
 
 
