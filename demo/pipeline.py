@@ -4,26 +4,22 @@ from haystack.nodes import FARMReader
 from haystack.pipelines import ExtractiveQAPipeline
 
 class QAPipeline(object):
-    def __init__(self):
-        self.model = "deepset/minilm-uncased-squad2"
 
-    def create_pipeline(self):
+    def create_pipeline(self, index, embedding_model, reader_model):
         document_store = ElasticsearchDocumentStore(
             host='es01',
             port='9200',
             username='',
             password='',
-            index='bioasq',
+            index=index,
             similarity="cosine",
             embedding_dim=768
         )
-
         retriever = EmbeddingRetriever(
             document_store=document_store,
-            embedding_model="dmis-lab/biobert-base-cased-v1.2",
+            embedding_model=embedding_model,
         )
-        # document_store.update_embeddings(retriever)
-        reader = FARMReader(model_name_or_path=self.model, use_gpu=True)
+        reader = FARMReader(model_name_or_path=reader_model, use_gpu=True)
         pipe = ExtractiveQAPipeline(reader, retriever)
         self.pipeline = pipe
 
@@ -33,5 +29,4 @@ class QAPipeline(object):
             params={"Retriever": {"top_k": 20}, "Reader": {"top_k": 5}}
         )
         return prediction
-
 
