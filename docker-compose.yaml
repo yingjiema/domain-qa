@@ -12,6 +12,13 @@ services:
     volumes:
       - gpl:/usr/share/mlruns
 
+  ui:
+    build: ./ui
+    env_file:
+      - .env
+    ports:
+      - 8501:8501
+
   demo:
     build: ./demo
     ports:
