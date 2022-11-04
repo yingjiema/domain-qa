@@ -1,15 +1,19 @@
 version: "3"
 
 services:
-  # main:
-  #   build: ./
-  #   restart: always
-  #   ports:
-  #     - 8000:8000
+  gpl:
+    build: ./adapt-bio
+    ports:
+      - 8002:8000
+    env_file:
+      - ./adapt-bio/.env
+    depends_on: 
+      - es01
+    volumes:
+      - gpl:/usr/share/mlruns
 
   demo:
     build: ./demo
-    restart: always
     ports:
       - 8001:8000
     depends_on: 
@@ -37,5 +41,7 @@ services:
 
 volumes:
   data01:
+    driver: local
+  gpl:
     driver: local
 
