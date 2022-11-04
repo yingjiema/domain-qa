@@ -3,6 +3,5 @@ pydantic
 uvicorn
 python-multipart
 requests
-farm-haystack
 mlflow
 boto3
