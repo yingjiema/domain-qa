@@ -16,6 +16,6 @@ if st.button('Submit'):
     response = requests.post(answer_endpoint, json=data)
     st.text(response.status_code)
     if response.status_code == 200:
-        st.json(response.json)
+        st.json(response.json())
 
     st.text("Hmmm......I'm not sure I understand your question.")
