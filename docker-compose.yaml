@@ -25,8 +25,8 @@ services:
     build: ./ui
     ports:
       - 8501:8501
-    # env_file:
-    #   - .env
+    env_file:
+      - .env
 
   demo:
     build: ./demo

@@ -42,6 +42,7 @@ s3_key = 'None'
 st.markdown('### Step 1: Name your project')
 proj_name = st.text_input('Project name')
 
+
 # 2. Data upload control
 st.markdown('### Step 2: Upload your data')
 st.write('Upload the file you would like to train your QA Engine on!')
@@ -67,7 +68,6 @@ if st.button('Submit'):
 st.markdown('### Step 3: Add data to document store!')
 if st.button('Store documents', key='document_store'):
     # Add to document store
-    st.write(s3_key)
     with st.spinner('Adding documents to the document store...'):
         response = requests.post(ingest_endpoint, params={ "bucket": BUCKET_NAME, "key": s3_key, "index": proj_name.lower() })
 
@@ -76,17 +76,15 @@ if st.button('Store documents', key='document_store'):
 # 4. Create embeddings
 st.markdown('### Step 4: Create embeddings from data!')
 if st.button('Create embeddings', key='create_embeddings'):
-    # Create embeddings
     with st.spinner('Creating document embeddings...'):
-        response = requests.post(embed_endpoint, data={ "index": proj_name.lower() })
+        response = requests.post(embed_endpoint, params={ "index": proj_name.lower() })
 
     report_response(response, '✅ Document embeddings created!')
 
 # 5. Train retriever
 st.markdown('### Step 5: Train retriever!')
 if st.button('Train retriever', key='train_retriever'):
-    # Train the retriever
     with st.spinner('Training the retriever...'):
-        response = requests.post(adapt_endpoint, data={ "index": proj_name.lower() })
+        response = requests.post(adapt_endpoint, params={ "index": proj_name.lower() })
 
     report_response(response, '✅ Training is complete!')
