@@ -5,7 +5,7 @@ import requests
 ANSWER_IP = "http://demo:8000/"
 answer_endpoint = ANSWER_IP + 'question-answer'
 
-st.markdown("# QA Service")
+st.markdown("# 🤖 QA Service")
 st.sidebar.markdown("# 🤖 QA Service")
 
 question = st.text_input('Ask your question below')
