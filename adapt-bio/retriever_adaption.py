@@ -1,7 +1,5 @@
 import mlflow
 
-# DAGSHUB_URI = "https://dagshub.com/domainqa/domain-qa.mlflow"
-
 class DomainAdaptionPipeline(object):
     def __init__(self):
         self.document_store = None
@@ -30,8 +28,8 @@ class DomainAdaptionPipeline(object):
             similarity=similarity,
             embedding_dim=embedding_dim
         )
-        # mlflow.set_tracking_uri(DAGSHUB_URI)
-        mlflow.set_experiment("domain-adaption-init-retriever")
+
+        mlflow.set_experiment("domain-adaption-retriever")
         with mlflow.start_run() as run:
             self.retriever = EmbeddingRetriever(
                 document_store=self.document_store, 
@@ -57,8 +55,8 @@ class DomainAdaptionPipeline(object):
         from haystack.nodes.question_generator import QuestionGenerator
         from haystack.nodes.label_generator import PseudoLabelGenerator
 
-        # mlflow.set_tracking_uri(DAGSHUB_URI)
-        mlflow.set_experiment("domain-adaption-question-generator")
+
+        mlflow.set_experiment("domain-adaption-qg")
         with mlflow.start_run() as run:
             question_producer = QuestionGenerator(
                 model_name_or_path=model_name_or_path,
@@ -70,7 +68,7 @@ class DomainAdaptionPipeline(object):
             self.question_producer_run = run.info.run_id
             mlflow.log_params(self.question_producer_params)
 
-        mlflow.set_experiment("domain-adaption-pseudo-label-generator")
+        mlflow.set_experiment("domain-adaption-plg")
         with mlflow.start_run() as run:
             psg = PseudoLabelGenerator(
                 question_producer=question_producer,
@@ -87,10 +85,9 @@ class DomainAdaptionPipeline(object):
             self.gpl_labels = output['gpl_labels']
 
     def train(self, index):
-        experiment_name = "domain-adaption-train"  
+        experiment_name = "domain-adaption-train-s3"  
         s3_bucket = "s3://domain-qa-system/mlruns" 
         mlflow.create_experiment(experiment_name, s3_bucket)
-        # mlflow.set_tracking_uri(DAGSHUB_URI)
         mlflow.set_experiment(experiment_name)
         with mlflow.start_run() as run:
             self.retriever.train(self.gpl_labels, n_epochs=1, batch_size=32)
@@ -105,3 +102,4 @@ class DomainAdaptionPipeline(object):
             mlflow.log_params(params)
             mlflow.log_artifacts('saved_models')
             self.document_store.update_embeddings(self.retriever)
+        return mlflow.get_artifact_uri()

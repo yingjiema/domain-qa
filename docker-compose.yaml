@@ -18,9 +18,7 @@ services:
       - ./adapt-bio/.env
     depends_on: 
       - es01
-    volumes:
-      - gpl:/usr/share/mlruns
-
+      
   ui:
     build: ./ui
     ports:
@@ -57,7 +55,5 @@ services:
 
 volumes:
   data01:
-    driver: local
-  gpl:
     driver: local
 
