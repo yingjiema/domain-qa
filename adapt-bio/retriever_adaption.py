@@ -87,7 +87,7 @@ class DomainAdaptionPipeline(object):
             self.gpl_labels = output['gpl_labels']
 
     def train(self, index):
-        experiment_name = "domain-adaption-train"  
+        experiment_name = "domain-adaption"  
         # s3_bucket = "s3://domain-qa-system/mlruns" 
         # mlflow.create_experiment(experiment_name, s3_bucket)
         mlflow.set_tracking_uri(DAGSHUB_URI)
