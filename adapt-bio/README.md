@@ -5,3 +5,7 @@
 - **Local test**: To test with docker locally and enable GPUs.
     - `docker build -t adapt:1.0 .`
     - `docker run --gpus all --env-file .env -p8000:8000 adapt:1.0`
+- **DagsHub Tracking**: Add following environment variables into `.env` file
+    - `MLFLOW_TRACKING_URI=https://dagshub.com/domainqa/domain-qa.mlflow`
+    - `MLFLOW_TRACKING_USERNAME=change_to_your_dagshub_username`
+    - `MLFLOW_TRACKING_PASSWORD=change_to_your_dagshub_password`

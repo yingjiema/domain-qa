@@ -28,8 +28,8 @@ async def adaption(index: str = ''):
     adapt = DomainAdaptionPipeline()
     adapt.init_docstore_retriever(index, host=host)
     adapt.generate_labels()
-    adapt.train(index)
-    return {"message": "Domain Adaption Success"}
+    model_path = adapt.train(index)
+    return {"artifact_uri": model_path}
 
 @app.post("/embed/", tags=["Update embedding for a given index"])
 async def adaption(index: str = '', embedding_model: str = "sentence-transformers/msmarco-distilbert-base-tas-b"):
