@@ -1,6 +1,6 @@
 import mlflow
 
-DAGSHUB_URI = "https://dagshub.com/domainqa/domain-qa.mlflow"
+# DAGSHUB_URI = "https://dagshub.com/domainqa/domain-qa.mlflow"
 
 class DomainAdaptionPipeline(object):
     def __init__(self):
@@ -30,7 +30,7 @@ class DomainAdaptionPipeline(object):
             similarity=similarity,
             embedding_dim=embedding_dim
         )
-        mlflow.set_tracking_uri(DAGSHUB_URI)
+        # mlflow.set_tracking_uri(DAGSHUB_URI)
         mlflow.set_experiment("domain-adaption-init-retriever")
         with mlflow.start_run() as run:
             self.retriever = EmbeddingRetriever(
@@ -57,7 +57,7 @@ class DomainAdaptionPipeline(object):
         from haystack.nodes.question_generator import QuestionGenerator
         from haystack.nodes.label_generator import PseudoLabelGenerator
 
-        mlflow.set_tracking_uri(DAGSHUB_URI)
+        # mlflow.set_tracking_uri(DAGSHUB_URI)
         mlflow.set_experiment("domain-adaption-question-generator")
         with mlflow.start_run() as run:
             question_producer = QuestionGenerator(
@@ -87,10 +87,10 @@ class DomainAdaptionPipeline(object):
             self.gpl_labels = output['gpl_labels']
 
     def train(self, index):
-        experiment_name = "domain-adaption"  
-        # s3_bucket = "s3://domain-qa-system/mlruns" 
-        # mlflow.create_experiment(experiment_name, s3_bucket)
-        mlflow.set_tracking_uri(DAGSHUB_URI)
+        experiment_name = "domain-adaption-train"  
+        s3_bucket = "s3://domain-qa-system/mlruns" 
+        mlflow.create_experiment(experiment_name, s3_bucket)
+        # mlflow.set_tracking_uri(DAGSHUB_URI)
         mlflow.set_experiment(experiment_name)
         with mlflow.start_run() as run:
             self.retriever.train(self.gpl_labels, n_epochs=1, batch_size=32)
