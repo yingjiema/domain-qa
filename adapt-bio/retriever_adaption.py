@@ -1,5 +1,7 @@
 import mlflow
 
+DAGSHUB_URI = "https://dagshub.com/domainqa/domain-qa.mlflow"
+
 class DomainAdaptionPipeline(object):
     def __init__(self):
         self.document_store = None
@@ -28,6 +30,7 @@ class DomainAdaptionPipeline(object):
             similarity=similarity,
             embedding_dim=embedding_dim
         )
+        mlflow.set_tracking_uri(DAGSHUB_URI)
         mlflow.set_experiment("domain-adaption-init-retriever")
         with mlflow.start_run() as run:
             self.retriever = EmbeddingRetriever(
@@ -38,7 +41,8 @@ class DomainAdaptionPipeline(object):
                 progress_bar=progress_bar
             )
             self.document_store.update_embeddings(self.retriever)
-            mlflow.log_params(self.retriever.__dict__)
+            self.retriever_run = run.info.run_id
+            mlflow.log_params(self.retriever.__dict__.get('_component_config', {}).get('params', {}))
 
     def generate_labels(
         self,
@@ -53,6 +57,7 @@ class DomainAdaptionPipeline(object):
         from haystack.nodes.question_generator import QuestionGenerator
         from haystack.nodes.label_generator import PseudoLabelGenerator
 
+        mlflow.set_tracking_uri(DAGSHUB_URI)
         mlflow.set_experiment("domain-adaption-question-generator")
         with mlflow.start_run() as run:
             question_producer = QuestionGenerator(
@@ -85,15 +90,17 @@ class DomainAdaptionPipeline(object):
         experiment_name = "domain-adaption"  
         # s3_bucket = "s3://domain-qa-system/mlruns" 
         # mlflow.create_experiment(experiment_name, s3_bucket)
+        mlflow.set_tracking_uri(DAGSHUB_URI)
         mlflow.set_experiment(experiment_name)
         with mlflow.start_run() as run:
             self.retriever.train(self.gpl_labels, n_epochs=1, batch_size=32)
             self.retriever.save(f'saved_models/{index}')
             params = {
-                'document_store': self.document_store.__dict__.get('_component_config', {}).get('params', {}),
-                'retriever': self.retriever.__dict__.get('_component_config', {}).get('params', {}),
+                'index': index,
+                'retriever': self.retriever_run,
                 'question_generator_run': self.question_producer_run,
-                'pseudo_label_generator_run': self.psg_run
+                'pseudo_label_generator_run': self.psg_run,
+                'artifact_uri': mlflow.get_artifact_uri()
             }
             mlflow.log_params(params)
             mlflow.log_artifacts('saved_models')
