@@ -1,5 +1,6 @@
 from starlette.requests import Request
 import os
+import torch
 
 import ray
 from ray import serve
@@ -11,31 +12,10 @@ from haystack.pipelines import ExtractiveQAPipeline
 
 from pydantic import BaseModel
 
-# class Query(BaseModel):
-#     text: str
-#     index: str = 'bioasq'
-#     embedding_model: str = "dmis-lab/biobert-base-cased-v1.2"
-#     reader_model: str = "deepset/minilm-uncased-squad2"
-
-
-
 @serve.deployment(num_replicas=1, ray_actor_options={"num_cpus": 2.0, "num_gpus": 1})
 class QuestionAnswerer:
     def __init__(self):
         # Load model
-        #self.document_store = FAISSDocumentStore.load(index_path="haystack_test_faiss", config_path="haystack_test_faiss_config")
-        if os.path.exists('domain-qa-document-store-short.db'):
-            os.remove('domain-qa-document-store-short.db')
-
-        #corpus = ["Neutrophils are a type of white blood cell that protects us from bacteria.",
-        #         "Lymphocytes are a type of white blood cell that protects us against viruses.",
-        #         "Eosinophils are a type of white blood cell that fights parasites.",
-        #         "T2DM, also known as type 2 diabetes mellitus, is a common condition" ]
-        #self.document_store = FAISSDocumentStore(
-        #    sql_url='sqlite:///domain-qa-document-store-short.db', 
-        #    faiss_index_factory_str="Flat", 
-        #    similarity="cosine")
-        #self.document_store.write_documents([{"content": t} for t in corpus])
         self.document_store = ElasticsearchDocumentStore(
             host='es01',
             port='9200',
@@ -50,9 +30,9 @@ class QuestionAnswerer:
             embedding_model="sentence-transformers/msmarco-distilbert-base-tas-b",
             model_format="sentence_transformers",
             max_seq_len=200,
-            progress_bar=True
+            progress_bar=True,
+            use_gpu=True
         )
-        #self.document_store.update_embeddings(self.retriever)
         self.reader = FARMReader(
             model_name_or_path="deepset/minilm-uncased-squad2", 
             use_gpu=True)
