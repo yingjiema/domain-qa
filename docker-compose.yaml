@@ -11,7 +11,8 @@ services:
           - driver: nvidia
             capabilities: [gpu]
             # count: 1
-            
+  es01: 
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
     ports:
       - 8002:8000
     env_file:
@@ -38,7 +39,7 @@ services:
   ray:
     build: 
       context: ./ray
-      shm_size: '12gb'
+    shm_size: '12gb'
     ports:
       - 8009:8000
     deploy:
