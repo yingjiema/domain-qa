@@ -11,11 +11,15 @@ st.sidebar.markdown("# 🤖 QA Service")
 question = st.text_input('Ask your question below')
 
 if st.button('Submit'):
-    st.text(question)
-    data = { 'text': question }
-    response = requests.post(answer_endpoint, json=data)
-    st.text(response.status_code)
-    if response.status_code == 200:
-        st.json(response.json())
+    # st.text(question)
+    # data = { 'text': question }
+    # response = requests.post(answer_endpoint, json=data)
+    # st.text(response.status_code)
+    # if response.status_code == 200:
+    #     st.json(response.json())
+
+    response = requests.post("http://ray:8000/", json=question)
+    answer = response.text
+    st.json(answer)
 
     st.text("Hmmm......I'm not sure I understand your question.")
