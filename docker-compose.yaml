@@ -18,7 +18,9 @@ services:
       - ./adapt-bio/.env
     depends_on: 
       - es01
-      
+    volumes:
+      - gpl:/usr/share/mlruns
+
   ui:
     build: ./ui
     ports:
@@ -32,6 +34,20 @@ services:
       - 8001:8000
     depends_on: 
       - es01
+
+  ray:
+    build: 
+      context: ./ray
+      shm_size: '12gb'
+    ports:
+      - 8009:8000
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            capabilities: [gpu]
+            # count: 1
 
   es01: 
     image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
@@ -55,5 +71,7 @@ services:
 
 volumes:
   data01:
+    driver: local
+  gpl:
     driver: local
 
