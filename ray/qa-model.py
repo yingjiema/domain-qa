@@ -63,3 +63,4 @@ class QuestionAnswerer:
 
 
 question_answerer = QuestionAnswerer.bind()
+# serve.run(QuestionAnswerer.bind()) 
